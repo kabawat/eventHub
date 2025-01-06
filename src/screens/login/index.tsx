@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Dimensions, TextInput, TouchableOpacity, Image, Alert } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, TextInput, TouchableOpacity, Image, Alert, ActivityIndicator } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 import React, { useState } from 'react';
 import { LoginService } from '../../lib/services/user';
@@ -11,6 +11,7 @@ const { width } = Dimensions.get('window');
 
 const Login = ({ navigation }: any) => {
     const dispatch = useAppDispatch()
+    const [isLoading, setIsLoading] = useState(false)
     const [formData, setFormData] = useState({
         loginIdentifier: '',
         password: '',
@@ -25,6 +26,7 @@ const Login = ({ navigation }: any) => {
 
     const handleLogin = async () => {
         try {
+            setIsLoading(true)
             const { loginIdentifier, password } = formData;
 
             // Validate inputs
@@ -38,7 +40,9 @@ const Login = ({ navigation }: any) => {
             navigation.replace('Events');
 
         } catch (error: any) {
-            console.log("errror-------> ", error)
+            Alert.alert('Error', error?.response?.data?.message || 'invalid credentials');
+        } finally {
+            setIsLoading(false)
         }
     };
 
@@ -81,9 +85,26 @@ const Login = ({ navigation }: any) => {
                         />
                     </View>
                     <View>
-                        <TouchableOpacity style={styles.button} onPress={handleLogin}>
-                            <Text style={styles.btnText}>Login</Text>
-                        </TouchableOpacity>
+                        {
+                            isLoading ? <>
+                                <TouchableOpacity style={styles.button}>
+                                    <Text style={styles.btnTextLoader}>
+                                        Login
+                                    </Text>
+                                    <Text>
+                                        <ActivityIndicator style={{ width: 10, marginLeft: 10 }} size="small" color="#fff" />
+                                    </Text>
+                                </TouchableOpacity>
+
+                            </> : <>
+
+                                <TouchableOpacity style={styles.button} onPress={handleLogin}>
+                                    <Text style={styles.btnText}>
+                                        Login
+                                    </Text>
+                                </TouchableOpacity>
+                            </>
+                        }
                         <View style={styles.pageLink}>
                             <Text style={styles.pageLinkText}>Don’t have an account?</Text>
                             <TouchableOpacity onPress={() => navigation.navigate('Register')}>
@@ -174,10 +195,18 @@ const styles = StyleSheet.create({
         paddingVertical: 12,
         backgroundColor: '#333',
         borderRadius: 8,
+        flexDirection: 'row',
+        justifyContent: 'center'
     },
     btnText: {
         color: '#fff',
         fontSize: 18,
         textAlign: 'center',
+    },
+    btnTextLoader: {
+        color: '#fff',
+        fontSize: 18,
+        textAlign: 'center',
+        paddingRight: 10
     },
 });

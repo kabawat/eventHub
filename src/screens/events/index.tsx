@@ -1,6 +1,6 @@
 import moment from "moment";
-import { useEffect, useRef } from "react";
-import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View, FlatList } from "react-native"
+import { useEffect, useRef, useState } from "react";
+import { Dimensions, Image, StyleSheet, Text, TouchableOpacity, View, FlatList, ActivityIndicator } from "react-native"
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -83,6 +83,16 @@ function Events({ navigation }: any) {
         </View>
     );
 
+    const renderFooter = () => {
+        if (!events?.loading) return null;
+        return (
+            <View style={styles.footer}>
+                <ActivityIndicator size="small" color="#0000ff" />
+                <Text>Loading more...</Text>
+            </View>
+        );
+    };
+
     return (
         <View style={styles.main}>
             <View style={styles.header}>
@@ -119,11 +129,12 @@ function Events({ navigation }: any) {
                                 ref={flatListRef}
                                 data={events?.data}
                                 renderItem={renderItem}
-                                keyExtractor={(item) => item._id}
+                                keyExtractor={(item: any, index: number) => `${item._id}-${index}`}
                                 contentContainerStyle={styles.container}
                                 showsVerticalScrollIndicator={false}
                                 onEndReached={handleScrollEnd}
                                 onEndReachedThreshold={0.1}
+                                ListFooterComponent={renderFooter}
                             />
                         </>
                     }
@@ -242,5 +253,9 @@ const styles = StyleSheet.create({
     viewMoreText: {
         color: '#333',
         fontSize: 26,
-    }
+    },
+    footer: {
+        paddingVertical: 16,
+        alignItems: "center",
+    },
 })

@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Dimensions, TextInput, TouchableOpacity, Image, Alert } from 'react-native';
+import { StyleSheet, Text, View, Dimensions, TextInput, TouchableOpacity, Image, Alert, ActivityIndicator } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 import React, { useState } from 'react';
 import { RegisterService } from '../../lib/services/user';
@@ -10,6 +10,7 @@ const { width } = Dimensions.get('window');
 
 const Register = ({ navigation }: any) => {
   const dispatch = useAppDispatch()
+  const [isLoader, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
     fullname: '',
     email: '',
@@ -23,6 +24,7 @@ const Register = ({ navigation }: any) => {
 
   const handleSubmit = async () => {
     try {
+      setIsLoading(true)
       const { fullname, email, password, cpassword } = formData;
 
       if (!fullname || !email || !password || !cpassword) {
@@ -45,8 +47,12 @@ const Register = ({ navigation }: any) => {
       await AsyncStorage.setItem('x_a_t', res.token);
       dispatch(updateToken(res?.token))
       navigation.replace('Events');
-    } catch (error) {
+    } catch (error: any) {
       console.log(error)
+      Alert.alert('Error', error?.response?.data?.message || 'something went wrong.');
+    }
+    finally {
+      setIsLoading(false)
     }
   };
 
@@ -112,9 +118,23 @@ const Register = ({ navigation }: any) => {
           </View>
 
           <View>
-            <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-              <Text style={styles.btnText}>Submit</Text>
-            </TouchableOpacity>
+            {
+              isLoader ? <>
+                <TouchableOpacity style={styles.button}>
+                  <Text style={styles.btnText}>
+                    Submit
+                  </Text>
+                  <Text>
+                    <ActivityIndicator style={{ width: 10, marginLeft: 10 }} size="small" color="#fff" />
+                  </Text>
+                </TouchableOpacity>
+              </> : <>
+                <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+                  <Text style={styles.btnText}>Submit</Text>
+                </TouchableOpacity>
+              </>
+            }
+
             <View style={styles.pageLink}>
               <Text style={styles.pageLinkTaxt}>Already have an account?</Text>
               <TouchableOpacity onPress={() => navigation.navigate('Login')}>
@@ -205,10 +225,13 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     backgroundColor: '#333',
     borderRadius: 8,
+    flexDirection: 'row',
+    justifyContent: 'center'
   },
   btnText: {
     color: '#fff',
     fontSize: 18,
+    width: 80,
     textAlign: 'center',
   },
 });

@@ -17,8 +17,7 @@ const commonSlice = createSlice({
     initialState,
     reducers: {
         updateToken: (state: any, action: any) => {
-            console.log(action.payload)
-            state.token = action.payload.token
+            state.token = action.payload
         }
     },
     extraReducers: (builder) => {

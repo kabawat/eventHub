@@ -27,12 +27,10 @@ const initialState: EventsState = {
 export const fetchAllEvents = createAsyncThunk<any, { page: number }, { rejectValue: string }>(
     "events/fetchEvents",
     async ({ page }, { rejectWithValue }) => {
-        console.log("page : ", page)
         try {
             const res = await FetchEventsService({ page });
             return res;
         } catch (error: any){
-            console.log("errorMessage" , error)
             const errorMessage = error?.response?.data?.message || "Failed to fetch events.";
             return rejectWithValue(errorMessage);
         }
